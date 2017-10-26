@@ -51,6 +51,8 @@ class Mic:
         self._audio = pyaudio.PyAudio()
         self._logger.info("Initialization of PyAudio completed.")
         self.stop_passive = False
+        self.skip_passive = False
+        self.chatting_mode = False
 
     def __del__(self):
         self._audio.terminate()
@@ -95,14 +97,14 @@ class Mic:
                 average = sum(lastN) / len(lastN)
 
             except Exception, e:
-                self._logger.warning(e)
+                self._logger.debug(e)
                 continue
 
         try:
             stream.stop_stream()
             stream.close()
         except Exception, e:
-            self._logger.warning(e)
+            self._logger.debug(e)
             pass
 
         # this will be the benchmark to cause a disturbance over!
@@ -171,7 +173,7 @@ class Mic:
                 # flag raised when sound disturbance detected
                 didDetect = False
             except Exception, e:
-                self._logger.warning(e)
+                self._logger.debug(e)
                 pass
 
         # start passively listening for disturbance above threshold
@@ -189,18 +191,18 @@ class Mic:
                     didDetect = True
                     break
             except Exception, e:
-                self._logger.warning(e)
+                self._logger.debug(e)
                 continue
 
         # no use continuing if no flag raised
         if not didDetect:
-            print "No disturbance detected"
+            print "没接收到唤醒指令"
             try:
                 self.stop_passive = False
                 stream.stop_stream()
                 stream.close()
             except Exception, e:
-                self._logger.warning(e)
+                self._logger.debug(e)
                 pass
             return (None, None)
 
@@ -217,7 +219,7 @@ class Mic:
                 data = stream.read(CHUNK)
                 frames.append(data)
             except Exception, e:
-                self._logger.warning(e)
+                self._logger.debug(e)
                 continue
 
         # save the audio data
@@ -226,7 +228,7 @@ class Mic:
             stream.stop_stream()
             stream.close()
         except Exception, e:
-            self._logger.warning(e)
+            self._logger.debug(e)
             pass
 
         with tempfile.NamedTemporaryFile(mode='w+b') as f:
@@ -241,7 +243,8 @@ class Mic:
             # check if PERSONA was said
             transcribed = self.passive_stt_engine.transcribe(f)
 
-        if any(PERSONA in phrase for phrase in transcribed):
+        if transcribed is not None and \
+           any(PERSONA in phrase for phrase in transcribed):
             return (THRESHOLD, PERSONA)
 
         return (False, transcribed)
@@ -266,14 +269,12 @@ class Mic:
         """
 
         RATE = 16000
-        CHUNK = 1024
+        CHUNK = 8192
         LISTEN_TIME = 12
 
         # check if no threshold provided
         if THRESHOLD is None:
             THRESHOLD = self.fetchThreshold()
-
-        self.speaker.play(dingdangpath.data('audio', 'beep_hi.wav'))
 
         # prepare recording stream
         stream = self._audio.open(format=pyaudio.paInt16,
@@ -282,10 +283,12 @@ class Mic:
                                   input=True,
                                   frames_per_buffer=CHUNK)
 
+        self.speaker.play(dingdangpath.data('audio', 'beep_hi.wav'))
+
         frames = []
         # increasing the range # results in longer pause after command
         # generation
-        lastN = [THRESHOLD * 1.2 for i in range(30)]
+        lastN = [THRESHOLD * 1.2 for i in range(40)]
 
         for i in range(0, RATE / CHUNK * LISTEN_TIME):
             try:
@@ -299,10 +302,10 @@ class Mic:
                 average = sum(lastN) / float(len(lastN))
 
                 # TODO: 0.8 should not be a MAGIC NUMBER!
-                if average < THRESHOLD * 0.9:
+                if average < THRESHOLD * 0.8:
                     break
             except Exception, e:
-                self._logger.warning(e)
+                self._logger.error(e)
                 continue
 
         self.speaker.play(dingdangpath.data('audio', 'beep_lo.wav'))
@@ -312,7 +315,7 @@ class Mic:
             stream.stop_stream()
             stream.close()
         except Exception, e:
-            self._logger.warning(e)
+            self._logger.debug(e)
             pass
 
         with tempfile.SpooledTemporaryFile(mode='w+b') as f:
@@ -328,6 +331,7 @@ class Mic:
 
     def say(self, phrase,
             OPTIONS=" -vdefault+m3 -p 40 -s 160 --stdout > say.wav"):
+        self._logger.info(u"机器人说：%s" % phrase)
         if self.wxbot is not None:
             wechatUser(self.profile, self.wxbot, "%s: %s" %
                        (self.robot_name, phrase), "")

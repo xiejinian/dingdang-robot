@@ -11,6 +11,10 @@
 
 叮当是一款可以工作在 Raspberry Pi 上的开源中文语音对话机器人/智能音箱项目，目的是让中国的Hacker们也能快速打造个性化的智能音箱。
 
+<h1 align="center">
+<img width="250" src="http://onmw7y6f4.bkt.clouddn.com/dingdang-logo.png" alt="dingdang">
+</h1>
+
 <div class="video">
    <div class="MIAOPAI_player" style='width:600px;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;-khtml-user-select:none;user-select:none;' >
    </div>
@@ -37,14 +41,25 @@
 
 ## 特性
 
+![叮当的特性](http://onmw7y6f4.bkt.clouddn.com/dingdang-robot2.png)
+
 叮当包括以下诸多特性：
 
 * 模块化。功能插件、语音识别、语音合成、对话机器人都做到了高度模块化，第三方插件单独维护，方便继承和开发自己的插件。
 * 微信接入。支持接入微信，并通过微信远程操控自己家中的设备。
-* 中文支持。支持百度语音识别和语音合成，未来还将支持接入其他的中文语音识别和合成。
-* 对话机器人支持。支持接入图灵机器人，未来还将支持接入小黄鸭等其他对话机器人。
+* 中文支持。集成百度、科大讯飞、阿里等多家中文语音识别和语音合成技术，且可以继续扩展。
+* 对话机器人支持。支持接入图灵机器人、Emotibot，未来还将支持接入更多机器人。
 * 全局监听，离线唤醒。支持无接触地离线语音指令唤醒。
 * 灵活可配置。支持定制机器人名字，支持选择语音识别和合成的插件。
+* 智能家居。集成 HomeAssistant 插件，支持语音控制智能家电。
+
+叮当的工作模式：
+
+![叮当的工作模式](http://onmw7y6f4.bkt.clouddn.com/dingdang-workflow.png)
+
+叮当被唤醒后，用户的语音指令先经过在线 STT 引擎进行 ASR 识别成文本，然后对识别到的文本进行技能匹配，交给适合处理该指令的技能插件去处理。插件处理完成后，得到的结果再交给 TTS 引擎合成成语音，播放给用户。
+
+虽然一次交互可能包含多次网络请求，不过带来的好处是：每一个环节都可以被修改和定制。
 
 ## Demo
 
@@ -55,7 +70,7 @@
 * Raspberry Pi 全系列，或其他 Linux 主机；
 * USB 麦克风（建议选购麦克风阵列）；
 * 音箱（不建议蓝牙音箱）；
-* 至少 8G 的 Micro-SD 内存卡（刷镜像的方式则要求至少16G，下个版本将会对镜像瘦身，降低要求）；
+* 至少 8G 的 Micro-SD 内存卡（刷镜像要求内存卡的实际容量至少 7.9 GB，否则可能刷不成功）；
 * 摄像头（可选，用于拍照）。
 * 读卡器（可选，用于刷镜像进内存卡）。
 
@@ -109,16 +124,12 @@ python dingdang.py
 * 提 bug 请到 [issue 页面](https://github.com/wzpan/dingdang-robot/issues)；
 * 要贡献代码，欢迎 fork 之后再提 pull request；
 * 插件请提交到 [dingdang-contrib](https://github.com/dingdang-robot/dingdang-contrib) ；
-* 您的捐赠将鼓励我继续完善叮当，支持支付宝、微信、比特币、莱特币、以太坊等捐赠形式：
+* 您的捐赠将鼓励我继续完善叮当，支持支付宝、微信等捐赠形式。捐赠的时候，请备注下您的昵称或姓名，我将会把您备注的信息添加到 [捐赠者名单](https://github.com/wzpan/dingdang-robot/wiki/donate-list) 中：
 
 | 支付宝 | 微信支付 |
 | ------ | --------- |
 | <img src="http://7xj89i.com1.z0.glb.clouddn.com/ali_pay_01.jpg" height="248px" width="164px" title="支付宝" style="display:inherit;"/> | <img src="http://7xj89i.com1.z0.glb.clouddn.com/wechat_pay_02.png" height="248px" width="164px" title="微信支付" style="display:inherit;"/> |
 
-  * BTC: 39Es9K6EYfnDeCj6hQ1rN9wX1Y5fxZ8CZA
-  * LTC: LYkWaXB7Ndu8s37zt1tjEu6goVYck1GxNr
-  * ETH: 0x792ec91956a4976203804105d4e4d71954048d4e
-   
 
 ## 联系
 
@@ -131,6 +142,7 @@ python dingdang.py
 * 叮当的前身是 [jasper-client](https://github.com/jasperproject/jasper-client)。感谢 [Shubhro Saha](http://www.shubhro.com/), [Charles Marsh](http://www.crmarsh.com/) and [Jan Holthuis](http://homepage.ruhr-uni-bochum.de/Jan.Holthuis/) 在 Jasper 项目上做出的优秀贡献；
 * 微信机器人使用的是 [liuwons](http://lwons.com/) 的 [wxBot](https://github.com/liuwons/wxBot)。
 * 感谢果果 [@qwedc001](http://github.com/qwedc001) 帮忙搭建维护 [论坛](http://bbs.hahack.com) 。
+* 感谢 [@GoldJohnKing](https://github.com/GoldJohnKing) 设计了叮当的 [logo](https://github.com/wzpan/dingdang-robot/issues/39) 。
 
 ## FAQ
 

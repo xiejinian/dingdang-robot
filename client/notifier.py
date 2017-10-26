@@ -4,6 +4,8 @@ import atexit
 from plugins import Email
 from apscheduler.schedulers.background import BackgroundScheduler
 import logging
+import app_utils
+import time
 
 
 class Notifier(object):
@@ -29,8 +31,12 @@ class Notifier(object):
             self.notifiers.append(self.NotificationClient(
                 self.handleEmailNotifications, None))
         else:
-            self._logger.warning('email account not set ' +
-                                 'in profile, email notifier will not be used')
+            self._logger.debug('email account not set ' +
+                               'in profile, email notifier will not be used')
+
+        if 'robot' in profile and profile['robot'] == 'emotibot':
+            self.notifiers.append(self.NotificationClient(
+                self.handleRemenderNotifications, None))
 
         sched = BackgroundScheduler(daemon=True)
         sched.start()
@@ -43,6 +49,8 @@ class Notifier(object):
     def handleEmailNotifications(self, lastDate):
         """Places new email notifications in the Notifier's queue."""
         emails = Email.fetchUnreadEmails(self.profile, since=lastDate)
+        if emails is None:
+            return
         if emails:
             lastDate = Email.getMostRecentDate(emails)
 
@@ -61,6 +69,14 @@ class Notifier(object):
             return "您有来自 %s 的新邮件 %s" % (sender, subject)
         for e in emails:
             self.q.put(styleEmail(e))
+
+        return lastDate
+
+    def handleRemenderNotifications(self, lastDate):
+        lastDate = time.strftime('%d %b %Y %H:%M:%S')
+        due_reminders = app_utils.get_due_reminders()
+        for reminder in due_reminders:
+            self.q.put(reminder)
 
         return lastDate
 

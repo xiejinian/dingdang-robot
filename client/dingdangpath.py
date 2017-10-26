@@ -1,12 +1,12 @@
 # -*- coding: utf-8-*-
 import os
-
 # Dingdang main directory
 APP_PATH = os.path.normpath(os.path.join(
     os.path.dirname(os.path.abspath(__file__)), os.pardir))
 
 DATA_PATH = os.path.join(APP_PATH, "static")
 LIB_PATH = os.path.join(APP_PATH, "client")
+LOGIN_PATH = os.path.join(APP_PATH, "login")
 TEMP_PATH = os.path.join(APP_PATH, "temp")
 PLUGIN_PATH = os.path.join(LIB_PATH, "plugins")
 
